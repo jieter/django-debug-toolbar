@@ -130,6 +130,14 @@ class NormalCursorWrapper:
     def _record(self, method, sql, params):
         start_time = time()
         try:
+            if isinstance(params, list):
+
+                def strip_GeomFromEWKB(param):
+                    if isinstance(param, str):
+                        return param.lstrip("ST_GeomFromEWKB('\\x").rstrip("'::bytea)")
+                    return param
+
+                params = [strip_GeomFromEWKB(param) for param in params]
             return method(sql, params)
         finally:
             stop_time = time()
